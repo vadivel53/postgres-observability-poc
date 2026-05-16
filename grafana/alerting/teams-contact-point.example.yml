@@ -1,0 +1,26 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: ms-teams-dba-critical
+    receivers:
+      - uid: ms-teams-dba-critical
+        type: teams
+        disableResolveMessage: false
+        settings:
+          url: $MS_TEAMS_WEBHOOK_URL
+          title: |
+            [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}
+          sectiontitle: "PostgreSQL Observability"
+          message: |
+            Alert: {{ .CommonLabels.alertname }}
+            Severity: {{ .CommonLabels.severity }}
+            Environment: {{ .CommonLabels.env }}
+            Instance: {{ .CommonLabels.instance }}
+            Database: {{ .CommonLabels.database }}
+
+            {{ range .Alerts }}
+            Summary: {{ .Annotations.summary }}
+            Description: {{ .Annotations.description }}
+            Starts at: {{ .StartsAt }}
+            {{ end }}
