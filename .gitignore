@@ -3,5 +3,7 @@ pgbadger/reports/*.html
 pgbadger/reports/*.json
 pgbadger/reports/*.txt
 *.log
+.push-work-*
+.remote-validate-*
 .DS_Store
 Thumbs.db

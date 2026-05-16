@@ -84,7 +84,7 @@ services:
       - "8080:8080"
       - "15432:5432"
     volumes:
-      - pgwatch-pg:/var/lib/postgresql/data
+      - pgwatch-pg:/var/lib/postgresql
       - pgwatch-grafana:/var/lib/grafana
       - pgwatch-config:/pgwatch/persistent-config
     depends_on:
