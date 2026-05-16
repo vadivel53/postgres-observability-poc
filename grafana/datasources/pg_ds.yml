@@ -1,0 +1,19 @@
+apiVersion: 1
+
+datasources:
+  - name: pgwatch metrics (postgres)
+    uid: pgwatch-metrics
+    type: postgres
+    url: localhost:5432
+    access: proxy
+    user: pgwatch
+    password: pgwatchadmin
+    database: pgwatch_metrics
+    basicAuth: false
+    isDefault: true
+    jsonData:
+      database: pgwatch_metrics
+      sslmode: disable
+      postgresVersion: 1500
+    version: 3
+    editable: true
