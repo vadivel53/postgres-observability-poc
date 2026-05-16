@@ -84,9 +84,10 @@ services:
       - "8080:8080"
       - "15432:5432"
     volumes:
-      - pgwatch-pg:/var/lib/postgresql/data
+      - pgwatch-pg:/var/lib/postgresql
       - pgwatch-grafana:/var/lib/grafana
       - pgwatch-config:/pgwatch/persistent-config
+      - ./pgwatch/init_pgwatch_sources.sh:/docker-entrypoint-initdb.d/init_pgwatch_sources.sh:ro
     depends_on:
       postgres-active:
         condition: service_healthy
