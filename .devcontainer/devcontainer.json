@@ -1,0 +1,26 @@
+{
+  "name": "PostgreSQL Observability POC",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [3000, 8080, 8081, 5432, 5433],
+  "portsAttributes": {
+    "3000": {
+      "label": "Grafana"
+    },
+    "8080": {
+      "label": "pgwatch Admin UI"
+    },
+    "8081": {
+      "label": "pgBadger Reports"
+    },
+    "5432": {
+      "label": "Active PostgreSQL"
+    },
+    "5433": {
+      "label": "Passive PostgreSQL"
+    }
+  },
+  "postCreateCommand": "cp -n .env.example .env || true && docker compose pull"
+}

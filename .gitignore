@@ -1,0 +1,7 @@
+.env
+pgbadger/reports/*.html
+pgbadger/reports/*.json
+pgbadger/reports/*.txt
+*.log
+.DS_Store
+Thumbs.db
