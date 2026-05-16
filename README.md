@@ -86,7 +86,7 @@ docker compose ps
 | Tool | URL | Purpose |
 |---|---|---|
 | Grafana | http://localhost:3000 | pgwatch dashboards |
-| pgwatch Admin UI | http://localhost:8080 | pgwatch source/config administration |
+| pgwatch Admin UI | http://localhost:8080 | Add monitored databases |
 | pgBadger Reports | http://localhost:8081 | View HTML reports through Nginx |
 
 Grafana default login:
@@ -244,6 +244,76 @@ For a clean POC reset:
 docker compose down -v
 docker compose up -d
 .\scripts\generate-load.ps1 -Rows 100000 -SlowSeconds 3
+```
+
+## Phase 1 Alerting: Grafana OSS to Microsoft Teams
+
+Grafana OSS is the recommended first alerting layer for this stack because Grafana already reads pgwatch metrics from the `pgwatch-metrics` datasource.
+
+Alert flow:
+
+```text
+PostgreSQL servers -> pgwatch -> pgwatch_metrics DB -> Grafana alert rules -> Microsoft Teams
+```
+
+Microsoft Teams setup:
+
+1. In Microsoft Teams, create or select the DBA/SRE channel.
+2. Create a Teams Workflow using the template **Post to a channel when a webhook request is received**.
+3. Copy the generated webhook URL.
+4. Store the URL as a secret on the Grafana host, for example:
+
+```bash
+export MS_TEAMS_WEBHOOK_URL='https://...'
+```
+
+Grafana UI setup:
+
+1. Open Grafana: http://localhost:3000
+2. Go to **Alerting -> Contact points**.
+3. Create contact point `ms-teams-dba-critical`.
+4. Select integration type **Microsoft Teams**.
+5. Paste the Teams Workflow webhook URL.
+6. Click **Test** and confirm a message arrives in Teams.
+7. Go to **Alerting -> Notification policies**.
+8. Route labels `team=dba` and `severity=critical|warning` to `ms-teams-dba-critical`.
+
+Provisioning examples are included for production use:
+
+```text
+grafana/alerting/teams-contact-point.example.yml
+grafana/alerting/notification-policy.example.yml
+grafana/alerting/postgres-alert-rule-sql-examples.md
+```
+
+For production, copy the YAML files into Grafana's alerting provisioning directory after replacing secrets:
+
+```bash
+sudo cp grafana/alerting/teams-contact-point.example.yml /etc/grafana/provisioning/alerting/teams-contact-point.yml
+sudo cp grafana/alerting/notification-policy.example.yml /etc/grafana/provisioning/alerting/notification-policy.yml
+sudo systemctl restart grafana-server
+```
+
+Recommended first alerts:
+
+| Alert | Example Condition |
+|---|---|
+| pgwatch metrics stale | no fresh `instance_up` sample for more than 5 minutes |
+| PostgreSQL instance down | latest availability signal is not healthy |
+| too many sessions | session count above production threshold for 5 minutes |
+| waiting sessions / lock pressure | waiting sessions greater than 0 for 5 minutes |
+| replication lag high | lag above RPO threshold for 10 minutes |
+| long running query | active query age above 30 minutes |
+
+Use labels like:
+
+```text
+team=dba
+env=prod
+source=pgwatch
+severity=critical
+instance=prod-erp-pg-prod-primary-01-p5432-primary-erpdb
+database=erpdb
 ```
 
 ## GitHub Codespaces Runbook
