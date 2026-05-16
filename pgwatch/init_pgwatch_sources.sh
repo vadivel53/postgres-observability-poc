@@ -15,4 +15,8 @@ ON CONFLICT (name) DO UPDATE
       "group" = EXCLUDED."group",
       dbtype = EXCLUDED.dbtype,
       is_enabled = EXCLUDED.is_enabled;
+
+UPDATE pgwatch.source
+SET is_enabled = false
+WHERE name = 'test';
 EOSQL
